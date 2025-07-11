@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: API de Clima para Data Center
+  description: |
+    API RESTful para monitoreo y control de clima en un data center. Permite consultar el estado actual, historial, modificar temperatura y humedad, y enviar alertas.
+  version: "1.0.0"
+servers:
+  - url: /
+
+components:
+  schemas:
+    EstadoClima:
+      type: object
+      properties:
+        temperatura:
+          type: number
+          format: float
+          description: Temperatura actual en grados Celsius
+        humedad:
+          type: number
+          format: float
+          description: Humedad relativa en porcentaje
+        timestamp:
+          type: string
+          format: date-time
+          description: Fecha y hora de la medición
+      required:
+        - temperatura
+        - humedad
+        - timestamp
+      example:
+        temperatura: 23.5
+        humedad: 45.0
+        timestamp: "2025-07-11T12:00:00"
+    ModificacionClima:
+      type: object
+      properties:
+        accion:
+          type: string
+          enum: [subir, bajar]
+          description: Acción a realizar (subir o bajar)
+        valor:
+          type: number
+          description: Valor numérico a modificar
+      required:
+        - accion
+        - valor
+      example:
+        accion: subir
+        valor: 2
+    Alerta:
+      type: object
+      properties:
+        destinatario:
+          type: string
+          description: Email del destinatario
+        asunto:
+          type: string
+          description: Asunto del correo
+      required:
+        - destinatario
+        - asunto
+      example:
+        destinatario: admin@datacenter.com
+        asunto: Alerta de clima
+
+paths:
+  /clima/actual:
+    get:
+      summary: Obtener estado actual del clima
+      description: Devuelve la temperatura y humedad actuales del data center.
+      responses:
+        "200":
+          description: Estado actual del clima
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoClima'
+              example:
+                temperatura: 23.5
+                humedad: 45.0
+                timestamp: "2025-07-11T12:00:00"
+
+  /clima/historial:
+    get:
+      summary: Obtener historial de clima
+      description: Devuelve el historial de registros de temperatura y humedad.
+      responses:
+        "200":
+          description: Historial de clima
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EstadoClima'
+              example:
+                - temperatura: 23.5
+                  humedad: 45.0
+                  timestamp: "2025-07-11T12:00:00"
+                - temperatura: 22.0
+                  humedad: 50.0
+                  timestamp: "2025-07-10T12:00:00"
+
+  /clima/temperatura:
+    post:
+      summary: Modificar temperatura
+      description: Sube o baja la temperatura del data center.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModificacionClima'
+            example:
+              accion: subir
+              valor: 1.5
+      responses:
+        "200":
+          description: Estado actualizado del clima
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoClima'
+        "400":
+          description: Acción inválida
+
+  /clima/humedad:
+    post:
+      summary: Modificar humedad
+      description: Sube o baja la humedad del data center.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModificacionClima'
+            example:
+              accion: bajar
+              valor: 5
+      responses:
+        "200":
+          description: Estado actualizado del clima
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoClima'
+        "400":
+          description: Acción inválida
+
+  /clima/alerta:
+    post:
+      summary: Enviar alerta de clima
+      description: Envía un correo de alerta con el estado actual del clima (mock).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alerta'
+            example:
+              destinatario: admin@datacenter.com
+              asunto: Alerta de temperatura
+      responses:
+        "200":
+          description: Alerta enviada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Alerta enviada (mock)

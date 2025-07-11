@@ -1,0 +1,31 @@
+# Requisitos para correr el programa
+
+1. **Python 3.11 o superior**
+   - Asegúrate de tener Python instalado. Puedes descargarlo desde https://www.python.org/downloads/
+
+2. **Dependencias (instalar con pip):**
+   - Flask
+
+   Puedes instalar las dependencias ejecutando en la terminal:
+   
+   ```powershell
+   pip install Flask
+   ```
+
+3. **Estructura esperada de carpetas y archivos:**
+   - app.py
+   - clima.db (base de datos SQLite, si es utilizada)
+   - swagger.yml
+   - carpetas: controllers/, models/, templates/
+
+4. **Cómo ejecutar la aplicación:**
+   - Desde la terminal, en la carpeta del proyecto:
+   
+   ```powershell
+   python app.py
+   ```
+   - La aplicación se ejecutará en http://localhost:8000
+
+5. **Notas adicionales:**
+   - Si agregas nuevas dependencias, inclúyelas en este archivo y en requirements.txt
+   - Si usas un entorno virtual, actívalo antes de instalar dependencias.

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Clima - DataCenter</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f5; margin: 40px; }
+        h1 { color: #8177f3; }
+        .menu { margin-bottom: 30px; }
+        .menu a, .menu button { display: inline-block; margin: 10px 10px 10px 0; color: #fff; background: #8177f3; padding: 10px 20px; border: none; border-radius: 5px; text-decoration: none; cursor: pointer; }
+        .menu a:hover, .menu button:hover { background: #ec09dd; }
+        .result { background: #fff; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="number"] { padding: 5px; border-radius: 3px; border: 1px solid #ccc; }
+    </style>
+    <script>
+        async function fetchEstadoActual() {
+            const res = await fetch('/clima/actual');
+            const data = await res.json();
+            document.getElementById('estado').innerText = `Temperatura: ${data.temperatura}°C\nHumedad: ${data.humedad}%`;
+        }
+        async function fetchHistorial() {
+            const res = await fetch('/clima/historial');
+            const data = await res.json();
+            let html = '<b>Historial:</b><br>';
+            data.forEach(r => {
+                html += `Fecha: ${r.fecha} | Temp: ${r.temperatura}°C | Humedad: ${r.humedad}%<br>`;
+            });
+            document.getElementById('historial').innerHTML = html;
+        }
+        async function modificarClima(tipo) {
+            const accion = document.getElementById(tipo + '_accion').value;
+            const valor = document.getElementById(tipo + '_valor').value;
+            const res = await fetch(`/clima/${tipo}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accion, valor })
+            });
+            const data = await res.json();
+            fetchEstadoActual();
+            fetchHistorial();
+        }
+        async function enviarAlerta() {
+            const destinatario = document.getElementById('destinatario').value;
+            const asunto = document.getElementById('asunto').value;
+            const res = await fetch('/clima/alerta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destinatario, asunto })
+            });
+            const data = await res.json();
+            alert(data.status);
+        }
+        window.onload = function() {
+            fetchEstadoActual();
+            fetchHistorial();
+        }
+    </script>
+</head>
+<body>
+    <h1>Panel de Clima - DataCenter</h1>
+    <div class="menu">
+        <button onclick="fetchEstadoActual()">Ver Estado Actual</button>
+        <button onclick="fetchHistorial()">Ver Historial</button>
+    </div>
+    <div class="menu">
+        <label>Modificar Temperatura:
+            <select id="temperatura_accion">
+                <option value="subir">Subir</option>
+                <option value="bajar">Bajar</option>
+            </select>
+            <input type="number" id="temperatura_valor" value="1" min="1" style="width:60px;">
+            <button onclick="modificarClima('temperatura')">Aplicar</button>
+        </label>
+        <label>Modificar Humedad:
+            <select id="humedad_accion">
+                <option value="subir">Subir</option>
+                <option value="bajar">Bajar</option>
+            </select>
+            <input type="number" id="humedad_valor" value="1" min="1" style="width:60px;">
+            <button onclick="modificarClima('humedad')">Aplicar</button>
+        </label>
+    </div>
+    <div class="menu">
+        <label>Enviar Alerta:
+            <input type="text" id="destinatario" placeholder="Destinatario">
+            <input type="text" id="asunto" placeholder="Asunto">
+            <button onclick="enviarAlerta()">Enviar</button>
+        </label>
+    </div>
+    <div class="result" id="estado"></div>
+    <div class="result" id="historial"></div>
+</body>
+</html>
